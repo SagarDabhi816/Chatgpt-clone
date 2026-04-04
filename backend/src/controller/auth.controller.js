@@ -2,9 +2,7 @@ const userModel = require("../model/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
-async function testController(req, res) {
-  console.log(req.body);
-}
+
 async function registerController(req, res) {
   const {
     fullName: { firstName, lastName },
@@ -72,7 +70,7 @@ async function loginController(req, res) {
 
   res.cookie("token", token);
 
-  res.status(201).json({
+  res.status(200).json({
     message: "User Logged in  Successfully",
     user: {
       email,
@@ -82,7 +80,6 @@ async function loginController(req, res) {
 }
 
 module.exports = {
-  testController,
   loginController,
   registerController,
 };

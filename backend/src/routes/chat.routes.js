@@ -4,6 +4,6 @@ const Router = express.Router();
 
 
 
-Router.get("/",authMiddleware.authUser)
+Router.post("/",authMiddleware.authUser)
 
 module.exports = Router;
