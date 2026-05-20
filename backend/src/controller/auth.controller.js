@@ -15,8 +15,8 @@ async function registerController(req, res) {
   });
 
   if (existingUser) {
-    return res.status(200).json({
-      Message: "User Already registered",
+    return res.status(400).json({
+      Message: "User already registered",
     });
   }
 
@@ -31,7 +31,7 @@ async function registerController(req, res) {
       password: hashedPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET,);
 
     res.cookie("token", token);
 
