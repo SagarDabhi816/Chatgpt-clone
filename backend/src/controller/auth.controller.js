@@ -42,7 +42,7 @@ async function registerController(req, res) {
       token,
     });
   } catch (error) {
-    console.log(error);
+    console.error(error);
   }
 }
 async function loginController(req, res) {

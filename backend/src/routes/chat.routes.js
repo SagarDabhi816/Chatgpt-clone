@@ -6,3 +6,4 @@ const Router = express.Router();
 Router.post("/", authMiddleware.authUser,chatController.createChat);
 
 module.exports = Router;
+ 
