@@ -9,7 +9,7 @@ async function createChat(req, res) {
     title,
   });
 
-  console.log(chat.lastActivity);
+  console.log("Last Activity",chat.lastActivity);
   return res.status(201).json({
     message: "Chat created",
     chat: {

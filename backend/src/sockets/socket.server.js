@@ -3,6 +3,7 @@ const jwt = require("jsonwebtoken");
 const userModel = require("../model/user.model");
 const aiService = require("../services/ai.service");
 const messageModel = require("../model/message.model");
+const { createMemory, queryMemory } = require("../services/vector.service");
 
 const cookie = require("cookie");
 
@@ -30,7 +31,7 @@ function initSocketServer(httpServer) {
 
   io.on("connection", (socket) => {
     socket.on("ai-message", async (messagePayload) => {
-      console.log(messagePayload);
+      console.log("Message Payload",messagePayload);
 
       // Storing user inputs in db
       await messageModel.create({
@@ -40,23 +41,50 @@ function initSocketServer(httpServer) {
         role: "user",
       });
 
-      // Fetching Past chats
-      const chatHistory = await messageModel.find({
-        chat: messagePayload.chat,
-      });
+      const vectors = await aiService.generateVector(messagePayload.content)
+      console.log("Vectors Generated",vectors)
 
-      console.log("ChatHistory", chatHistory);
+      if (vectors && Array.isArray(vectors) && vectors.length > 0) {
+        await createMemory({
+          vectors,
+          messageId:"1234567",
+          metadata:{
+            chat:messagePayload.chat,
+            user:socket.user._id
+          }
+        })
+      } else {
+        console.warn("Vectors array is empty or invalid, skipping memory creation");
+      }
+
+      // Fetching Past chats
+      const chatHistory = (
+        await messageModel
+          .find({
+            chat: messagePayload.chat,
+          })
+          .sort({ createdAt: -1 })
+          .limit(20)
+          .lean()
+      ).reverse();
+      console.log("History",chatHistory)
+
+      // await createMemory({});
 
       // Sending inputs without chathistoryy
       // const response = await aiService.generateResponse(messagePayload.content);
 
       // Sending inputs with chathistoryy
-      const response = await aiService.generateResponse(chatHistory.map((item)=>{
+      const response = await aiService.generateResponse(
+        chatHistory.map((item) => {
           return {
-            role:item.role,
-            parts:[{text:item.content}]
-          }
-      }));
+            role: item.role,
+            parts: [{ text: item.content }],
+          };
+        }),
+      );
+
+      console.log("Response",response)
 
       // Storing model response
       await messageModel.create({
