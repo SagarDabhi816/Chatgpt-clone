@@ -30,6 +30,7 @@ function initSocketServer(httpServer) {
   });
 
   io.on("connection", (socket) => {
+
     socket.on("ai-message", async (messagePayload) => {
       console.log("Message Payload",messagePayload);
 
@@ -38,36 +39,30 @@ function initSocketServer(httpServer) {
         chat: messagePayload.chat,
         user: socket.user._id,
         content: messagePayload.content,
-        role: "user",
+        role: "user"
       });
 
       const vectors = await aiService.generateVector(messagePayload.content)
+      console.log(vectors)
+
+      await createMemory({
+        vectors,
+        messageId: Date.now().toString(),
+        metadata:{
+          chat:messagePayload.chat,
+          user:socket.user._id.toString()
+        }
+      })
+
       console.log("Vectors Generated",vectors)
 
-      if (vectors && Array.isArray(vectors) && vectors.length > 0) {
-        await createMemory({
-          vectors,
-          messageId:"1234567",
-          metadata:{
-            chat:messagePayload.chat,
-            user:socket.user._id
-          }
-        })
-      } else {
-        console.warn("Vectors array is empty or invalid, skipping memory creation");
-      }
+
 
       // Fetching Past chats
-      const chatHistory = (
-        await messageModel
-          .find({
+      const chatHistory = (await messageModel .find({
             chat: messagePayload.chat,
-          })
-          .sort({ createdAt: -1 })
-          .limit(20)
-          .lean()
-      ).reverse();
-      console.log("History",chatHistory)
+          }).sort({ createdAt: -1 }).limit(20).lean()).reverse();
+      // console.log("History",chatHistory)
 
       // await createMemory({});
 
@@ -76,15 +71,15 @@ function initSocketServer(httpServer) {
 
       // Sending inputs with chathistoryy
       const response = await aiService.generateResponse(
-        chatHistory.map((item) => {
+        chatHistory.map( item => {
           return {
             role: item.role,
             parts: [{ text: item.content }],
-          };
+          }
         }),
       );
 
-      console.log("Response",response)
+      console.log("Response is = ",response)
 
       // Storing model response
       await messageModel.create({

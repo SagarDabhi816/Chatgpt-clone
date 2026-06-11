@@ -7,16 +7,20 @@ const pc = new Pinecone({ apiKey: process.env.PINECONE_API_KEY });
 // Create an index for dense vectors with integrated embedding
 // const indexName = 'quickstart-js';
 
-const chatgptCloneIndex = pc.Index('chatgpt-clone');
+const chatgptCloneIndex = pc.Index("chatgpt-clone");
 
 async function createMemory({ vectors, metadata, messageId }) {
-  await chatgptCloneIndex.upsert([
-    {
-      id: messageId,
-      values: vectors,
-      metadata,
-    },
-  ]);
+  const response = await chatgptCloneIndex.upsert({
+    records: [
+      {
+        id: messageId,
+        values: vectors,
+        metadata,
+      },
+    ],
+  });
+
+  console.log("Record is inserted ", response);
 }
 
 async function queryMemory(queryVector, limit = 5, metadata) {
