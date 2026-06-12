@@ -6,6 +6,7 @@ const messageModel = require("../model/message.model");
 const { createMemory, queryMemory } = require("../services/vector.service");
 
 const cookie = require("cookie");
+const { QueryVectorFromJSON } = require("@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch/db_data");
 
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {});
@@ -32,10 +33,9 @@ function initSocketServer(httpServer) {
   io.on("connection", (socket) => {
 
     socket.on("ai-message", async (messagePayload) => {
-      console.log("Message Payload",messagePayload);
 
       // Storing user inputs in db
-      await messageModel.create({
+     const message = await messageModel.create({
         chat: messagePayload.chat,
         user: socket.user._id,
         content: messagePayload.content,
@@ -43,28 +43,32 @@ function initSocketServer(httpServer) {
       });
 
       const vectors = await aiService.generateVector(messagePayload.content)
-      console.log(vectors)
 
       await createMemory({
         vectors,
-        messageId: Date.now().toString(),
+        messageId: message._id,
         metadata:{
           chat:messagePayload.chat,
-          user:socket.user._id.toString()
+          user:socket.user._id,
+          text:messagePayload.content
+
         }
       })
 
-      console.log("Vectors Generated",vectors)
+      const memory = await queryMemory({
+          queryVector:vectors,
+          limit:1,
+          metadata:{}
+      })
 
-
+      console.log("Memory is = ",memory)
 
       // Fetching Past chats
       const chatHistory = (await messageModel .find({
             chat: messagePayload.chat,
           }).sort({ createdAt: -1 }).limit(20).lean()).reverse();
-      // console.log("History",chatHistory)
 
-      // await createMemory({});
+      
 
       // Sending inputs without chathistoryy
       // const response = await aiService.generateResponse(messagePayload.content);
@@ -79,15 +83,24 @@ function initSocketServer(httpServer) {
         }),
       );
 
-      console.log("Response is = ",response)
-
       // Storing model response
-      await messageModel.create({
+     const responseMessage =  await messageModel.create({
         chat: messagePayload.chat,
         user: socket.user._id,
         content: response,
         role: "model",
       });
+
+      const responseVectors = await aiService.generateVector(response)
+      await createMemory({
+        vectors:responseVectors,
+        messageId:responseMessage._id,
+        metadata:{
+          chat:messagePayload.chat,
+          user:socket.user._id,
+          text:response
+        }
+      })
 
       socket.emit("ai-response", {
         content: response,
