@@ -31,7 +31,6 @@ async function generateResponse(content) {
             `
     }
   });
-  console.log("Response.text =", response.text);
   return response.text;
 }
 

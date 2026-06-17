@@ -20,7 +20,6 @@ const Login = () => {
         setSubmitting(true);
 
 
-        console.log(form);
 
         axios.post("http://localhost:3000/api/auth/login", {
             email: form.email,
@@ -30,7 +29,6 @@ const Login = () => {
                 withCredentials: true
             }
         ).then((res) => {
-            console.log(res);
             navigate("/");
         }).catch((err) => {
             console.error(err);

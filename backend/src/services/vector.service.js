@@ -17,7 +17,6 @@ async function createMemory({ vectors, metadata, messageId }) {
     ],
   });
 
-  console.log("Record is inserted ", response);
 }
 
 async function queryMemory({queryVector, limit = 5, metadata}) {

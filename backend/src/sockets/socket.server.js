@@ -11,7 +11,13 @@ const {
 } = require("@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch/db_data");
 
 function initSocketServer(httpServer) {
-  const io = new Server(httpServer, {});
+  const io = new Server(httpServer, {
+     cors: {
+            origin: "http://localhost:5173",
+            allowedHeaders: [ "Content-Type", "Authorization" , ],
+            credentials: true
+        }
+  });
 
   io.use(async (socket, next) => {
     const cookies = cookie.parse(socket.handshake.headers?.cookie || "");
@@ -34,6 +40,7 @@ function initSocketServer(httpServer) {
 
   io.on("connection", (socket) => {
     socket.on("ai-message", async (messagePayload) => {
+      
       // Storing User Inputs In Local Database
       // const message = await messageModel.create({
       //   chat: messagePayload.chat,

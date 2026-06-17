@@ -1,0 +1,44 @@
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+const RequireAuth = ({ children }) => {
+  const [checking, setChecking] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    let mounted = true;
+
+    axios
+      .get("http://localhost:3000/api/chat/", { withCredentials: true })
+      .then(() => {
+        if (mounted) setChecking(false);
+      })
+      .catch((err) => {
+        // If unauthorized (or any error), redirect to login
+        navigate("/login", { replace: true });
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, [navigate]);
+
+  if (checking)
+    return (
+      <div
+        style={{
+          height: "100vh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        Checking authentication...
+      </div>
+    );
+
+  return children;
+};
+
+export default RequireAuth;
