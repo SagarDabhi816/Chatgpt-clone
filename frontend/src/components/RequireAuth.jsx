@@ -10,7 +10,7 @@ const RequireAuth = ({ children }) => {
     let mounted = true;
 
     axios
-      .get("http://localhost:3000/api/chat/", { withCredentials: true })
+      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", { withCredentials: true })
       .then(() => {
         if (mounted) setChecking(false);
       })
