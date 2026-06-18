@@ -15,9 +15,12 @@ const ChatSidebar = ({
   useEffect(() => {
     let mounted = true;
     axios
-      .get("http://localhost:3000/api/chat/", { withCredentials: true })
+      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", {
+        withCredentials: true,
+      })
       .catch((err) => {
-        if (mounted && err.response && err.response.status === 401) {
+        if (mounted) {
+          // Redirect on any error (401 or network/CORS issues) to ensure unauthenticated users are sent to login
           navigate("/login", { replace: true });
         }
       });
@@ -30,7 +33,7 @@ const ChatSidebar = ({
   const handleLogout = async () => {
     try {
       await axios.post(
-        "http://localhost:3000/api/auth/logout",
+        "https://chatgpt-clone-6ihx.onrender.com/api/auth/logout",
         {},
         { withCredentials: true },
       );

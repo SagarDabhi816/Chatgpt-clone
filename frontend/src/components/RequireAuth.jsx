@@ -9,13 +9,25 @@ const RequireAuth = ({ children }) => {
   useEffect(() => {
     let mounted = true;
 
+    // Quick client-side cookie check: if there's no token cookie, redirect immediately.
+    const hasTokenCookie = document.cookie
+      .split("; ")
+      .some((c) => c.startsWith("token="));
+    if (!hasTokenCookie) {
+      if (mounted) setChecking(false);
+      navigate("/login", { replace: true });
+      return;
+    }
+
     axios
-      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", { withCredentials: true })
+      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", {
+        withCredentials: true,
+      })
       .then(() => {
         if (mounted) setChecking(false);
       })
       .catch((err) => {
-        // If unauthorized (or any error), redirect to login
+        if (mounted) setChecking(false);
         navigate("/login", { replace: true });
       });
 
