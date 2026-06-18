@@ -31,7 +31,7 @@ const Home = () => {
   const [socket, setSocket] = useState(null);
   const navigate = useNavigate();
 
-  const activeChat = chats.find((c) => c.id === activeChatId) || null;
+  const activeChat = chats?.find((c) => c.id === activeChatId) || null;
 
   const [messages, setMessages] = useState([
     // {
@@ -70,7 +70,7 @@ const Home = () => {
     axios
       .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", { withCredentials: true })
       .then((response) => {
-        dispatch(setChats(response.data.chats.reverse()));
+        dispatch(setChats(response?.data?.chats?.reverse()));
       })
       .catch((err) => {
         if (err.response && err.response.status === 401) {
@@ -137,7 +137,7 @@ const Home = () => {
     );
 
     setMessages(
-      response.data.messages.map((m) => ({
+      response.data?.messages?.map((m) => ({
         type: m.role === "user" ? "user" : "ai",
         content: m.content,
       })),

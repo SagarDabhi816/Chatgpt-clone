@@ -1,7 +1,6 @@
-  const userModel = require("../model/user.model");
+const userModel = require("../model/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
 
 async function registerController(req, res) {
   const {
@@ -31,7 +30,7 @@ async function registerController(req, res) {
       password: hashedPassword,
     });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET,);
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
 
     res.cookie("token", token);
 
@@ -79,7 +78,18 @@ async function loginController(req, res) {
   });
 }
 
+async function logoutController(req, res) {
+  try {
+    res.clearCookie("token");
+    return res.status(200).json({ message: "Logged out" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Logout failed" });
+  }
+}
+
 module.exports = {
   loginController,
   registerController,
+  logoutController,
 };
