@@ -84,6 +84,7 @@ const Home = () => {
       withCredentials: true,
     });
     tempSocket.on("ai-response", (messagePayload) => {
+      if(messagePayload.chat !== activeChatId) { dispatch(sendingFinished()); return ;}
       setMessages((prevMessages) => [
         ...prevMessages,
         {
