@@ -10,7 +10,7 @@ const chatRoutes = require("./routes/chat.routes");
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://chatgpt-clone-6ihx.onrender.com',
     // methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
