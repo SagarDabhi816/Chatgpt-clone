@@ -15,7 +15,7 @@ const ChatSidebar = ({
   useEffect(() => {
     let mounted = true;
     axios
-      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", {
+      .get("https://chatgpt-clone-1-h5yx.onrender.com/api/chat/", {
         withCredentials: true,
       })
       .catch((err) => {
@@ -33,7 +33,7 @@ const ChatSidebar = ({
   const handleLogout = async () => {
     try {
       await axios.post(
-        "https://chatgpt-clone-6ihx.onrender.com/api/auth/logout",
+        "https://chatgpt-clone-1-h5yx.onrender.com/api/auth/logout",
         {},
         { withCredentials: true },
       );

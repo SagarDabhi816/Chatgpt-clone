@@ -51,7 +51,7 @@ const Home = () => {
     if (!title) return;
 
     const response = await axios.post(
-      "https://chatgpt-clone-6ihx.onrender.com/api/chat/",
+      "https://chatgpt-clone-1-h5yx.onrender.com/api/chat/",
       {
         title,
       },
@@ -68,7 +68,9 @@ const Home = () => {
   // Ensure at least one chat exists initially
   useEffect(() => {
     axios
-      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", { withCredentials: true })
+      .get("https://chatgpt-clone-1-h5yx.onrender.com/api/chat/", {
+        withCredentials: true,
+      })
       .then((response) => {
         dispatch(setChats(response?.data?.chats?.reverse()));
       })
@@ -80,11 +82,14 @@ const Home = () => {
         }
       });
 
-    const tempSocket = io("https://chatgpt-clone-6ihx.onrender.com", {
+    const tempSocket = io("https://chatgpt-clone-1-h5yx.onrender.com", {
       withCredentials: true,
     });
     tempSocket.on("ai-response", (messagePayload) => {
-      if(messagePayload.chat !== activeChatId) { dispatch(sendingFinished()); return ;}
+      if (messagePayload.chat !== activeChatId) {
+        dispatch(sendingFinished());
+        return;
+      }
       setMessages((prevMessages) => [
         ...prevMessages,
         {
@@ -132,7 +137,7 @@ const Home = () => {
 
   const getMessages = async (chatId) => {
     const response = await axios.get(
-      `https://chatgpt-clone-6ihx.onrender.com/api/chat/messages/${chatId}`,
+      `https://chatgpt-clone-1-h5yx.onrender.com/api/chat/messages/${chatId}`,
       { withCredentials: true },
     );
 

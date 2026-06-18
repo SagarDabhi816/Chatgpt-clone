@@ -20,7 +20,7 @@ const RequireAuth = ({ children }) => {
     }
 
     axios
-      .get("https://chatgpt-clone-6ihx.onrender.com/api/chat/", {
+      .get("https://chatgpt-clone-1-h5yx.onrender.com/api/chat/", {
         withCredentials: true,
       })
       .then(() => {
