@@ -1,4 +1,6 @@
 @import url('./styles/theme.css');
+@import "tailwindcss";
+
 
 * {
   box-sizing: border-box;
@@ -35,6 +37,7 @@ a:hover {
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: rgba(0, 0, 0, 0.275);
   padding: var(--space-6) var(--space-4);
 }
 

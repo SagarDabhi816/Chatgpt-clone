@@ -78,7 +78,7 @@ const Login = () => {
               required
             />
           </div>
-          <button type="submit" className="primary-btn" disabled={submitting}>
+          <button type="submit" className="p-4 rounded-xl dark:bg-gray-600" disabled={submitting}>
             {submitting ? "Signing in..." : "Sign in"}
           </button>
         </form>
