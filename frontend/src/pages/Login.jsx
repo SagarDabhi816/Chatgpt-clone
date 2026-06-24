@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -31,7 +32,14 @@ const Login = () => {
         navigate("/");
       })
       .catch((err) => {
-        console.error(err);
+        const errorMessage =
+          err.response?.data?.message || "Incorrect email or password. Please try again.";
+        Swal.fire({
+          icon: "error",
+          title: "Login Failed",
+          text: errorMessage,
+          confirmButtonText: "Try Again",
+        });
       })
       .finally(() => {
         setSubmitting(false);
