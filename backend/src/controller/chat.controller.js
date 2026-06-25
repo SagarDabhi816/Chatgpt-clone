@@ -22,6 +22,7 @@ async function createChat(req, res) {
 }
 
 async function getChats(req,res) {
+  
 
   const user = req.user;
 
@@ -29,6 +30,9 @@ async function getChats(req,res) {
     user:user._id
   })
   
+  console.log(chats)
+
+
   res.status(200).json({
     message:"Chat retrived successfully",
     chats:  chats.map(chat =>({
