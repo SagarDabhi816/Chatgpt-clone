@@ -30,14 +30,18 @@ app.use(
 // Using Middlewares
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, "../public")));
-
-app.get("*name", (req, res) => {
-  res.sendFile(path.join(__dirname, "../public/index.html"));
-});
 
 /* Using Routes */
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+
+/* Static files */
+app.use(express.static(path.join(__dirname, "../public")));
+
+/* SPA fallback LAST */
+app.get(/^\/(?!api).*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
 
 module.exports = app;
