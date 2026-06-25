@@ -6,36 +6,7 @@ const RequireAuth = ({ children }) => {
   const [checking, setChecking] = useState(true);
   const navigate = useNavigate();
 
-  // useEffect(() => {
-  //   let mounted = true;
-
-  //   // Quick client-side cookie check: if there's no token cookie, redirect immediately.
-  //   const hasTokenCookie = document.cookie
-  //     .split("; ")
-  //     .some((c) => c.startsWith("token="));
-  //   if (!hasTokenCookie) {
-  //     if (mounted) setChecking(false);
-  //     navigate("/login", { replace: true });
-  //     return;
-  //   }
-
-  //   axios
-  //     .get("https://chatgpt-clone-1-h5yx.onrender.com/api/chat/", {
-  //       withCredentials: true,
-  //     })
-  //     .then(() => {
-  //       if (mounted) setChecking(false);
-  //     })
-  //     .catch((err) => {
-  //       if (mounted) setChecking(false);
-  //       navigate("/login", { replace: true });
-  //     });
-
-  //   return () => {
-  //     mounted = false;
-  //   };
-  // }, [navigate]);
-
+  
   useEffect(() => {
   let mounted = true;
 
