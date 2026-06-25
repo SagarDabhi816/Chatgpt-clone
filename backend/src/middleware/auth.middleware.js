@@ -13,10 +13,15 @@ async function authUser(req, res, next) {
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    await userModel.findById(decoded.id).select("-password");
+  const user = await userModel
+  .findById(decoded.id)
+  .select("-password");
 
-    const user = await userModel.findById(decoded.id);
-
+if (!user) {
+  return res.status(401).json({
+    message: "Unauthorised",
+  });
+}
     req.user = user;
 
     next();

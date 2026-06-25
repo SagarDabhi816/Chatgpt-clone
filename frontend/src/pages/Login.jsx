@@ -46,6 +46,15 @@ const Login = () => {
       });
   }
 
+  useEffect(() => {
+  axios.get(
+    "https://chatgpt-clone-1-h5yx.onrender.com/api/auth/me",
+    { withCredentials: true }
+  )
+  .then(() => navigate("/"))
+  .catch(() => {});
+}, []);
+
   return (
     <div className="center-min-h-screen">
       <div className="auth-card" role="main" aria-labelledby="login-heading">

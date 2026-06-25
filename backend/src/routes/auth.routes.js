@@ -6,5 +6,10 @@ const Router = express.Router();
 Router.post("/register", authControllers.registerController);
 Router.post("/login", authControllers.loginController);
 Router.post("/logout", authControllers.logoutController);
+Router.get("/me", authMiddleware.authUser, (req, res) => {
+  res.status(200).json({
+    user: req.user
+  });
+});
 
 module.exports = Router;
