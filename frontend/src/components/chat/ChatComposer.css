@@ -45,7 +45,7 @@
     font: inherit;
     line-height: 1.5;
     max-height: 260px;
-    padding: 0 0 18px 0; /* space for hint overlay */
+    padding: 0 0 0 0; /* space for hint overlay */
 }
 
 .composer-input::placeholder { color: #8d8d91; }

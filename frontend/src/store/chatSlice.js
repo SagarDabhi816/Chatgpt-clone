@@ -88,6 +88,15 @@ const chatSlice = createSlice({
         };
       },
     },
+    removeChat: (state, action) => {
+  state.chats = state.chats.filter(
+    chat => chat._id !== action.payload
+  );
+},
+
+addChat: (state, action) => {
+  state.chats.unshift(action.payload);
+}
   },
 });
 
@@ -101,6 +110,8 @@ export const {
   addUserMessage,
   addAIMessage,
   setChats,
+  removeChat,
+  addChat,
 } = chatSlice.actions;
 
 export default chatSlice.reducer;

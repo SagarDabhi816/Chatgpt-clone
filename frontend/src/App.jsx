@@ -1,14 +1,12 @@
-import { useState } from 'react'
-import AppRoutes from './appRoutes'
-import './App.css'
+import AppRoutes from "./appRoutes.jsx";
+import "./App.css";
 
 function App() {
-
   return (
-   <>
-        <AppRoutes/>
-   </>
-  )
+    <>
+      <AppRoutes />
+    </>
+  );
 }
 
-export default App
+export default App;

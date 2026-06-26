@@ -19,7 +19,7 @@ async function registerController(req, res) {
     });
   }
 
-  const hashedPassword = await bcrypt.hashSync(password, 10);
+  const hashedPassword = bcrypt.hashSync(password, 10);
   try {
     const user = await userModel.create({
       fullName: {
@@ -75,10 +75,11 @@ async function loginController(req, res) {
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "none",
+    sameSite:  process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000,
   };
 
+  
   res.cookie("token", token, cookieOptions);
 
   res.status(200).json({
@@ -88,12 +89,13 @@ async function loginController(req, res) {
       fullName: user.fullName,
     },
   });
+
 }
 
 async function logoutController(req, res) {
   try {
     res.clearCookie("token", {
-      sameSite: "none",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       secure: process.env.NODE_ENV === "production",
     });
     return res.status(200).json({ message: "Logged out" });

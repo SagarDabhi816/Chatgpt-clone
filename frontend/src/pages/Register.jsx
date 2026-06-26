@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 
 const Register = () => {
   const [form, setForm] = useState({
@@ -21,9 +21,9 @@ const Register = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    axios
-      .post(
-        "https://chatgpt-clone-1-h5yx.onrender.com/api/auth/register",
+    try {
+      await api.post(
+        "/auth/register",
         {
           email: form.email,
           fullName: {
@@ -31,23 +31,12 @@ const Register = () => {
             lastName: form.lastname,
           },
           password: form.password,
-        },
-        {
-          withCredentials: true,
-        },
-      )
-      .then((res) => {
-        navigate("/");
-      })
-      .catch((err) => {
-        console.error(err);
-        alert("Registration failed (placeholder)");
-      });
-
-    try {
-      // Placeholder: integrate real registration logic / API call.
+        }
+      );
+      navigate("/");
     } catch (err) {
       console.error(err);
+      alert("Registration failed");
     } finally {
       setSubmitting(false);
     }

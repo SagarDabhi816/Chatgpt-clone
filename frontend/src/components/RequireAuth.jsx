@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 const RequireAuth = ({ children }) => {
@@ -10,10 +10,8 @@ const RequireAuth = ({ children }) => {
   useEffect(() => {
   let mounted = true;
 
-  axios
-    .get("https://chatgpt-clone-1-h5yx.onrender.com/api/auth/me", {
-      withCredentials: true,
-    })
+  api
+    .get("/auth/me")
     .then(() => {
       if (mounted) setChecking(false);
     })

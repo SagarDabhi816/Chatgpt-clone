@@ -9,14 +9,12 @@ Router.post("/", authMiddleware.authUser,chatController.createChat);
 
 /* GET /api/chat/ */
 Router.get("/", authMiddleware.authUser,chatController.getChats);
+Router.delete('/:id', authMiddleware.authUser, chatController.deletChat)
 
 /* GET /api/chat/messages/:id */
 Router.get('/messages/:id', authMiddleware.authUser, chatController.getMessages)
-Router.get("/me", authMiddleware.authUser, (req, res) => {
-  res.status(200).json({
-    user: req.user
-  });
-});
+
+
 
 module.exports = Router;
  

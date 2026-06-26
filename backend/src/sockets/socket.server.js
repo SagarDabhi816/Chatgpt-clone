@@ -12,11 +12,15 @@ const {
 
 function initSocketServer(httpServer) {
   const io = new Server(httpServer, {
-     cors: {
-            origin: ["http://localhost:5173", "http://localhost:5174" , "https://chatgpt-clone-1-h5yx.onrender.com"],
-            allowedHeaders: [ "Content-Type", "Authorization" , ],
-            credentials: true
-        }
+    cors: {
+      origin: [
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://chatgpt-clone-1-h5yx.onrender.com",
+      ],
+      allowedHeaders: ["Content-Type", "Authorization"],
+      credentials: true,
+    },
   });
 
   io.use(async (socket, next) => {
@@ -40,70 +44,44 @@ function initSocketServer(httpServer) {
 
   io.on("connection", (socket) => {
     socket.on("ai-message", async (messagePayload) => {
-      
-      // Storing User Inputs In Local Database
-      // const message = await messageModel.create({
-      //   chat: messagePayload.chat,
-      //   user: socket.user._id,
-      //   content: messagePayload.content,
-      //   role: "user",
-      // });
-
-      // const vectors = await aiService.generateVector(messagePayload.content);
-
-      // Runs code Simultaneously
-      // Storing User Inputs To Vector Database
-
+    // Validate chat ID
+    const chatId = messagePayload.chat;
+    const mongoose = require('mongoose');
+    if (!chatId || !mongoose.isValidObjectId(chatId)) {
+      socket.emit("error", { message: "Invalid or missing chat ID" });
+      return;
+    }
       const [message, vectors] = await Promise.all([
         messageModel.create({
-          chat: messagePayload.chat,
+          chat: chatId,
           user: socket.user._id,
           content: messagePayload.content,
           role: "user",
         }),
         aiService.generateVector(messagePayload.content),
-        
       ]);
 
       await createMemory({
-          vectors,
-          messageId: message._id,
-          metadata: {
-            chat: messagePayload.chat,
-            user: socket.user._id,
-            text: messagePayload.content,
-          },
-        })
-
-      /*
-      const memory = await queryMemory({
-        queryVector: vectors,
-        limit: 3,
-        metadata: {},
+        vectors,
+        messageId: message._id,
+        metadata: {
+          chat: chatId,
+          user: socket.user._id,
+          text: messagePayload.content,
+        },
       });
-
-      // Fetching Past chats
-      const chatHistory = (
-        await messageModel
-          .find({
-            chat: messagePayload.chat,
-          })
-          .sort({ createdAt: -1 })
-          .limit(20)
-          .lean()
-      ).reverse();
-*/
 
       const [memory, chatHistory] = await Promise.all([
         queryMemory({
           queryVector: vectors,
-          limit: 3,
+          limit: 7,
           metadata: {
-            user:socket.user._id},
+            user: socket.user._id,
+          },
         }),
         messageModel
           .find({
-            chat: messagePayload.chat,
+            chat: chatId,
           })
           .sort({ createdAt: -1 })
           .limit(20)
@@ -130,53 +108,43 @@ function initSocketServer(httpServer) {
         },
       ];
 
-      // Sending inputs without chathistoryy
-      // const response = await aiService.generateResponse(messagePayload.content);
-
-      // Sending inputs with chathistoryy
       const response = await aiService.generateResponse([
         ...longTermMemory,
         ...shortTermMemory,
       ]);
 
-
-       socket.emit("ai-response", {
+      // Send response immediately
+      socket.emit("ai-response", {
         content: response,
-        chat: messagePayload.chat,
-      });
-      /*
-      // Storing Model Response In Local Database
-      const responseMessage = await messageModel.create({
-        chat: messagePayload.chat,
-        user: socket.user._id,
-        content: response,
-        role: "model",
+        chat: chatId,
       });
 
-      const responseVectors = await aiService.generateVector(response);*/
+      // Save in background (don't await)
+      (async () => {
+        try {
+          const [responseMessage, responseVectors] = await Promise.all([
+            messageModel.create({
+              chat: chatId,
+              user: socket.user._id,
+              content: response,
+              role: "model",
+            }),
+            aiService.generateVector(response),
+          ]);
 
-      const [responseMessage, responseVectors] = await Promise.all([
-        messageModel.create({
-          chat: messagePayload.chat,
-          user: socket.user._id,
-          content: response,
-          role: "model",
-        }),
-        aiService.generateVector(response),
-      ]);
-
-      // Storing Agent Response To Vector Database
-      await createMemory({
-        vectors: responseVectors,
-        messageId: responseMessage._id,
-        metadata: {
-          chat: messagePayload.chat,
-          user: socket.user._id,
-          text: response,
-        },
-      });
-
-     
+          await createMemory({
+            vectors: responseVectors,
+            messageId: responseMessage._id,
+            metadata: {
+              chat: chatId,
+              user: socket.user._id,
+              text: response,
+            },
+          });
+        } catch (error) {
+          console.error("Background save failed:", error);
+        }
+      })();
     });
   });
 }

@@ -1,23 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { io } from "socket.io-client";
 import ChatMobileBar from "../components/chat/ChatMobileBar.jsx";
 import ChatSidebar from "../components/chat/ChatSidebar.jsx";
 import ChatMessages from "../components/chat/ChatMessages.jsx";
 import ChatComposer from "../components/chat/ChatComposer.jsx";
 import "../components/chat/ChatLayout.css";
-import { fakeAIReply } from "../components/chat/aiClient.js";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import {
-  ensureInitialChat,
   startNewChat,
   selectChat,
   setInput,
   sendingStarted,
   sendingFinished,
-  addUserMessage,
-  addAIMessage,
   setChats,
 } from "../store/chatSlice.js";
 
@@ -27,22 +23,16 @@ const Home = () => {
   const activeChatId = useSelector((state) => state.chat.activeChatId);
   const input = useSelector((state) => state.chat.input);
   const isSending = useSelector((state) => state.chat.isSending);
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  const [socket, setSocket] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const socketRef = useRef(null);
   const navigate = useNavigate();
 
-  const activeChat = chats?.find((c) => c.id === activeChatId) || null;
+  const activeChatIdRef = useRef(activeChatId);
+  useEffect(() => {
+    activeChatIdRef.current = activeChatId;
+  }, [activeChatId]);
 
-  const [messages, setMessages] = useState([
-    // {
-    //   type: 'user',
-    //   content: 'Hello, how can I help you today?'
-    // },
-    // {
-    //   type: 'ai',
-    //   content: 'Hi there! I need assistance with my account.'
-    // }
-  ]);
+  const [messages, setMessages] = useState([]);
 
   const handleNewChat = async () => {
     // Prompt user for title of new chat, fallback to 'New Chat'
@@ -50,27 +40,20 @@ const Home = () => {
     if (title) title = title.trim();
     if (!title) return;
 
-    const response = await axios.post(
-      "https://chatgpt-clone-1-h5yx.onrender.com/api/chat/",
-      {
-        title,
-      },
-      {
-        withCredentials: true,
-      },
-    );
-
-    getMessages(response.data.chat._id);
-    dispatch(startNewChat(response.data.chat));
-    setSidebarOpen(false);
+    try {
+      const response = await api.post("/chat/", { title });
+      getMessages(response.data.chat._id);
+      dispatch(startNewChat(response.data.chat));
+      setSidebarOpen(false);
+    } catch (err) {
+      console.error("Failed to create new chat:", err);
+    }
   };
 
   // Ensure at least one chat exists initially
   useEffect(() => {
-    axios
-      .get("https://chatgpt-clone-1-h5yx.onrender.com/api/chat/", {
-        withCredentials: true,
-      })
+    api
+      .get("/chat/")
       .then((response) => {
         dispatch(setChats(response?.data?.chats?.reverse()));
       })
@@ -82,11 +65,12 @@ const Home = () => {
         }
       });
 
-    const tempSocket = io("https://chatgpt-clone-1-h5yx.onrender.com", {
+    const socketUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
+    const tempSocket = io(socketUrl, {
       withCredentials: true,
     });
     tempSocket.on("ai-response", (messagePayload) => {
-      if (messagePayload.chat !== activeChatId) {
+      if (messagePayload.chat !== activeChatIdRef.current) {
         dispatch(sendingFinished());
         return;
       }
@@ -101,8 +85,12 @@ const Home = () => {
       dispatch(sendingFinished());
     });
 
-    setSocket(tempSocket);
-  }, [navigate]);
+    socketRef.current = tempSocket;
+
+    return () => {
+      tempSocket.disconnect();
+    };
+  }, [navigate, dispatch]);
 
   const sendMessage = async () => {
     const trimmed = input.trim();
@@ -120,33 +108,24 @@ const Home = () => {
     setMessages(newMessages);
     dispatch(setInput(""));
 
-    socket.emit("ai-message", {
+    socketRef.current?.emit("ai-message", {
       chat: activeChatId,
       content: trimmed,
     });
-
-    // try {
-    //   const reply = await fakeAIReply(trimmed);
-    //   dispatch(addAIMessage(activeChatId, reply));
-    // } catch {
-    //   dispatch(addAIMessage(activeChatId, 'Error fetching AI response.', true));
-    // } finally {
-    //   dispatch(sendingFinished());
-    // }
   };
 
   const getMessages = async (chatId) => {
-    const response = await axios.get(
-      `https://chatgpt-clone-1-h5yx.onrender.com/api/chat/messages/${chatId}`,
-      { withCredentials: true },
-    );
-
-    setMessages(
-      response.data?.messages?.map((m) => ({
-        type: m.role === "user" ? "user" : "ai",
-        content: m.content,
-      })),
-    );
+    try {
+      const response = await api.get(`/chat/messages/${chatId}`);
+      setMessages(
+        response.data?.messages?.map((m) => ({
+          type: m.role === "user" ? "user" : "ai",
+          content: m.content,
+        })),
+      );
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
   };
 
   return (
@@ -166,7 +145,7 @@ const Home = () => {
         onNewChat={handleNewChat}
         open={sidebarOpen}
       />
-      <main className="chat-main" role="main">
+      <main className="chat-main " role="main">
         {messages.length === 0 && (
           <div className="chat-welcome" aria-hidden="true">
             <div className="chip">Early Preview</div>

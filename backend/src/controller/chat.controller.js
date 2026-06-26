@@ -30,7 +30,6 @@ async function getChats(req,res) {
     user:user._id
   })
   
-  console.log(chats)
 
 
   res.status(200).json({
@@ -46,21 +45,49 @@ async function getChats(req,res) {
 
 
 async function getMessages(req, res) {
-
-    const chatId = req.params.id;
-
+  const chatId = req.params.id;
+  // Validate chatId
+  if (!chatId) {
+    return res.status(400).json({ message: "Chat ID is required" });
+  }
+  const mongoose = require('mongoose');
+  if (!mongoose.isValidObjectId(chatId)) {
+    return res.status(400).json({ message: "Invalid Chat ID" });
+  }
+  try {
     const messages = await messageModel.find({ chat: chatId }).sort({ createdAt: 1 });
-
-    res.status(200).json({
-        message: "Messages retrieved successfully",
-        messages: messages
-    })
-
+    return res.status(200).json({
+      message: "Messages retrieved successfully",
+      messages,
+    });
+  } catch (err) {
+    console.error("Error retrieving messages:", err);
+    return res.status(500).json({ message: "Failed to retrieve messages" });
+  }
 }
 
+
+async function deletChat(req,res){
+    const chatId = req.params.id;
+  
+ try{
+   await chatModel.findByIdAndDelete(chatId)
+
+  return res.status(200).json({
+    message:"Chat deleted successfully"
+  })
+ }
+ catch(e){
+   return res.status(400).json({
+    message:"Got some error"
+   })
+ }
+
+}
 
 module.exports = {
   createChat,
   getChats,
-  getMessages
+  getMessages,
+  deletChat
 };  

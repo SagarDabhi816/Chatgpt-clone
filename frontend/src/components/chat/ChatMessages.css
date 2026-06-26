@@ -36,7 +36,6 @@
 /* Bubble styling refined */
 .msg-bubble {
     padding: var(--space-4) var(--space-5);
-    border: 1px solid var(--color-border);
     background: var(--color-bg-alt);
     border-radius: 14px;
     line-height: 1.5;
@@ -46,19 +45,19 @@
 }
 
 .msg-user .msg-bubble {
-    background: linear-gradient(180deg, #1f1f1f, #161616);
+    background: linear-gradient(180deg, #1f1f1f, #af1b1b);
     color: #fafafa;
-    border: 1px solid #2a2a2a;
+    /* border: 1px solid #2a2a2a; */
 }
 
 .minimal .msg-user .msg-bubble {
-    background: #111;
-    border-color: #2a2a2a;
+    background: #690c0c;
+    border-color: hsl(0, 88%, 47%);
 }
 
 .msg-ai .msg-bubble {
-    background: #0d0d0d;
-    border-color: #1e1e1e;
+    background: #710d0d;
+    border-color: #ab1414;
 }
 
 .msg-ai.pending .msg-bubble {

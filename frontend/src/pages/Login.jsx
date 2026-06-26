@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../api";
 import Swal from "sweetalert2";
 
 const Login = () => {
@@ -17,18 +17,16 @@ const Login = () => {
     e.preventDefault();
     setSubmitting(true);
 
-    axios
+    api
       .post(
-        "https://chatgpt-clone-1-h5yx.onrender.com/api/auth/login",
+        "/auth/login",
         {
           email: form.email,
           password: form.password,
         },
-        {
-          withCredentials: true,
-        },
+        
       )
-      .then((res) => {
+      .then(() => {
         navigate("/");
       })
       .catch((err) => {
@@ -47,13 +45,12 @@ const Login = () => {
   }
 
   useEffect(() => {
-  axios.get(
-    "https://chatgpt-clone-1-h5yx.onrender.com/api/auth/me",
-    { withCredentials: true }
+  api.get(
+    "/auth/me"
   )
   .then(() => navigate("/"))
   .catch(() => {});
-}, []);
+}, [navigate]);
 
   return (
     <div className="center-min-h-screen">
