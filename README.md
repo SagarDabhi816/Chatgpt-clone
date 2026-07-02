@@ -1,8 +1,5 @@
 # ChatGPT Clone
 
-A full-stack AI-powered conversational application inspired by ChatGPT, built to explore modern web development, real-time communication, and AI integration.
-
----
 
 ## Overview
 
@@ -14,11 +11,16 @@ The application follows a modern client-server architecture with a React fronten
 
 ---
 
+
+## Live Demo
+
+> This project is not publicly deployed due to the limited usage quota of free-tier AI services. To prevent quota exhaustion and ensure a consistent demonstration experience, screenshots and source code have been provided instead.
+
 ## Features
 
 - User Authentication & Authorization
 - Real-time AI Chat using Socket.IO
-- AI-powered Responses with Google Gemini
+- AI-powered Responses using Google Gemini
 - Context-aware Conversations using Vector Embeddings
 - Persistent Chat History
 - Fast and Responsive User Interface
@@ -91,7 +93,7 @@ ChatGPT-Clone/
 2. User sends a message from the chat interface.
 3. Message is sent to the backend via Socket.IO/API.
 4. Backend communicates with Google Gemini API.
-5. Relevant context is retrieved/stored using Pinecone embeddings.
+5. Relevant context is retrieved and stored using Pinecone embeddings.
 6. AI response is generated and returned to the client.
 7. Chat history is stored in MongoDB.
 
@@ -109,7 +111,7 @@ This project helped me gain hands-on experience with:
 - REST API Development
 - State Management with Redux Toolkit
 - Modern React Architecture
-- Deployment On Render
+- Deployment on Render
 
 ---
 
@@ -129,15 +131,7 @@ This project helped me gain hands-on experience with:
 
 ### Context-Awareness
 
-![context Awareness](./screenshots/context.png)
-
----
-
-## Live Demo
-
-> This project currently does not have a public live deployment due to the limited quota of free-tier AI services.
-
-## Interested recruiters or developers can explore the source code and screenshots to understand the application's functionality.
+![Context-Aware Memory](./screenshots/context.png)
 
 ## Author
 
